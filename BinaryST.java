@@ -12,6 +12,10 @@ public class BinaryST
 {
 	private Node root;
 	
+	private int unique;
+	
+	private int size;
+	
 	public BinaryST()
 	{
 		root = null;
@@ -24,43 +28,75 @@ public class BinaryST
 			if(root == null) {
 				Node root = new Node(s[x]);
 			} else {
-				
+				int result = placeNode(root, s[x]);
+				switch(result) {
+					case 0 :
+						this.size++;
+					break;
+					
+					case 1: 
+						this.unique++;
+						this.size++;
+					break;
+				}
 			}
 		}
 	}
 	
-	private void placeNode(Node n, String d) {
+	private int placeNode(Node n, String d) {
 		Node node  = new Node(d);
+		if(n.data.compareTo(d) == 0) {
+			n.quantity++;
+			return 0;
+		}
 		if(n.data.compareTo(d) > 0) {
 			if(n.left == null) {
 				n.left = node;
 				node.parent = n;
+				updateHeight(node.parent, 1);
+				return 1;
 			} else {
-				placeNode(n.left, d);
+				return placeNode(n.left, d);
 			}
 		} else {
 			if(n.right == null) {
 				n.right = node;
 				node.parent = n;
+				updateHeight(node.parent, 1);
+				return 1;
 			} else {
-				placeNode(n.right, d);
+				return placeNode(n.right, d);
 			}
 		}
 	}
 	
+	private void updateHeight(Node n, int height) {
+		if(n.height < height) {
+			n.height = height;
+		}
+		if(n.parent == null) {
+			return;
+		}
+		updateHeight(n.parent, height + 1);
+	}
+	
 	public int distinctSize()
 	{
-		// implementation
+		return this.unique;
 	}
 	
 	public int size()
 	{
-		// implementation
+		return this.size;
 	}
 	
 	public int height()
 	{
-		// implementation
+		if(this.root == null) {
+			return 0;
+		} else {
+			return this.root.height + 1;
+		}
 	}
 	
 	public void add(String s)
@@ -102,6 +138,10 @@ public class BinaryST
 		
 		String data;
 		
+		int quantity;
+		
+		int height;
+		
 		Node left;
 		
 		Node right;
@@ -110,9 +150,11 @@ public class BinaryST
 		
 		public Node(String data) {
 			this.data = data;
+			this.quantity = 1;
 			parent = null;
 			left = null;
 			right = null;
+			this.height = 0;
 		}
 	}
 	
