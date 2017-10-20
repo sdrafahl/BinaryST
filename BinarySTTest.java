@@ -269,4 +269,127 @@ class BinarySTTest {
 		assertTrue(answer == input);
 	}
 	
+	@Test
+	void testBinarySTStringArray23() {
+		BinaryST bst = new BinaryST();
+		bst.add("D");
+		bst.add("C");
+		bst.add("E");
+		bst.add("B");
+		bst.add("CA");
+		bst.add("DA");
+		bst.add("F");
+		String[] preOrder = bst.preOrder();
+		String[] answer = {"D", "C", "B", "CA", "E", "DA", "F"};
+		for(int x=0;x<preOrder.length;x++) {
+			if(!preOrder[x].equals(answer[x])) {
+				assertTrue(false);
+			}
+		}
+		assertTrue(true);
+	}
+	
+	@Test
+	void testBinarySTStringArray24() {
+		BinaryST bst = new BinaryST();
+		int answer = 0;
+		int value = bst.size();
+		int value1 = bst.distinctSize();
+		assertTrue(value == value1 && value == answer);
+	}
+	
+	@Test
+	void testBinarySTStringArray25() {
+		BinaryST bst = new BinaryST();
+		bst.add("D");
+		bst.add("C");
+		bst.add("E");
+		bst.add("B");
+		bst.add("CA");
+		bst.add("DA");
+		bst.add("F");
+		bst.add("C");
+		int value = bst.rankOf("E");
+		int answer = 5;
+		assertTrue(value == answer);
+	}
+	
+	@Test
+	void testBinarySTStringArray26() {
+		BinaryST bst = new BinaryST();
+		bst.add("D");
+		bst.add("C");
+		bst.add("E");
+		bst.add("B");
+		bst.add("CA");
+		bst.add("DA");
+		bst.add("F");
+		bst.add("C");
+		bst.remove("D");
+		int answer = 4;
+		int value = bst.height();
+		assertTrue(value == answer);
+	}
+	
+	@Test
+	void testBinarySTStringArray27() {
+		BinaryST bst = new BinaryST();
+		bst.add("D");
+		bst.add("C");
+		bst.add("E");
+		bst.add("B");
+		bst.add("CA");
+		bst.add("DA");
+		bst.add("F");
+		bst.add("C");
+		bst.remove("D");
+		bst.remove("DA");
+		int answer = 3;
+		int value = bst.rankOf("E");
+		assertTrue(value == answer);
+	}
+	
+	@Test
+	void testBinarySTStringArray28() {
+		BinaryST bst = new BinaryST();
+		bst.add("D");
+		bst.add("C");
+		bst.add("E");
+		bst.add("B");
+		bst.add("CA");
+		bst.add("DA");
+		bst.add("F");
+		bst.add("C");
+		bst.remove("D");
+		bst.remove("DA");
+		bst.add("D");
+		bst.add("D");
+		bst.add("D");
+		int answer = 3;
+		int value = bst.frequency("D");
+		assertTrue(value == answer);
+	}
+	
+	@Test
+	void testBinarySTStringArray29() {
+		BinaryST bst = new BinaryST();
+		bst.add("D");
+		bst.add("C");
+		bst.add("E");
+		bst.add("B");
+		bst.add("CA");
+		bst.add("DA");
+		bst.add("F");
+		bst.add("C");
+		bst.remove("D");
+		bst.remove("DA");
+		bst.add("D");
+		bst.add("D");
+		bst.add("D");
+		bst.remove("D");
+		int answer = 2;
+		int value = bst.frequency("D");
+		assertTrue(value == answer);
+	}
+	
 }

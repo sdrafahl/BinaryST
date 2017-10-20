@@ -44,13 +44,15 @@ public class BinaryST
 		Node node  = new Node(d);
 		if(n.data.compareTo(d) == 0) {
 			n.quantity++;
+			n.size++;
+			this.updateHeight(n);
 			return 0;
 		}
 		if(n.data.compareTo(d) > 0) {
 			if(n.left == null) {
 				n.left = node;
 				node.parent = n;
-				updateHeight(node.parent, false);
+				updateHeight(node.parent);
 				return 1;
 			} else {
 				return placeNode(n.left, d);
@@ -59,7 +61,7 @@ public class BinaryST
 			if(n.right == null) {
 				n.right = node;
 				node.parent = n;
-				updateHeight(node.parent, false);
+				updateHeight(node.parent);
 				return 1;
 			} else {
 				return placeNode(n.right, d);
@@ -67,7 +69,7 @@ public class BinaryST
 		}
 	}
 	
-	private void updateHeight(Node n, boolean removed) {
+	private void updateHeight(Node n) {
 		if(n.left != null && n.right != null) {
 			if(n.left.height - n.right.height > 0 ) {
 				n.height = n.left.height + 1;
@@ -86,7 +88,7 @@ public class BinaryST
 			n.size = 1;
 		}
 		if(n.parent != null) {
-			updateHeight(n.parent, removed);
+			updateHeight(n.parent);
 		}	
 	}
 	
@@ -177,6 +179,8 @@ public class BinaryST
 				this.size--;
 				if(temp.quantity > 1) {
 					temp.quantity--;
+					temp.size--;
+					this.updateHeight(temp);
 				} else {
 					removeNode(temp);
 					this.unique--;
@@ -219,7 +223,7 @@ public class BinaryST
 					toe = toe.left;
 				}
 			}
-			this.updateHeight(toe, true);
+			this.updateHeight(toe);
 			return;
 		}
 		
@@ -229,7 +233,7 @@ public class BinaryST
 			} else {
 				n.parent.left = null;
 			}
-			this.updateHeight(n.parent, true);
+			this.updateHeight(n.parent);
 			return;
 		}
 		
@@ -258,7 +262,7 @@ public class BinaryST
 						toe = toe.left;
 					}
 				}
-				this.updateHeight(toe, true);
+				this.updateHeight(toe);
 			} else {
 				p.left = n.right;
 				p.left.parent = p;
@@ -282,7 +286,7 @@ public class BinaryST
 						toe = toe.left;
 					}
 				}
-				this.updateHeight(toe, true);
+				this.updateHeight(toe);
 			}
 			return;
 		}
@@ -306,7 +310,7 @@ public class BinaryST
 					toe = toe.left;
 				}
 			}
-			this.updateHeight(toe, true);
+			this.updateHeight(toe);
 			return;
 		}
 		
@@ -319,16 +323,16 @@ public class BinaryST
 			}
 			Node toe = n.left;
 			while(true) {
-				if(n.left == null && n.right == null) {
+				if(toe.left == null && toe.right == null) {
 					break;
 				}
-				if(toe.right != null && (n.left == null || n.right.height > n.left.height)) {
+				if(toe.right != null && (toe.left == null || toe.right.height > toe.left.height)) {
 					toe = toe.right;
 				} else {
 					toe = toe.left;
 				}
 			}
-			this.updateHeight(toe, true);
+			this.updateHeight(toe);
 			return;
 		}
 		
@@ -338,7 +342,7 @@ public class BinaryST
 	{
 		ArrayList<String> list = new ArrayList<String>();
 		this.visitSubTree(root, list);
-		return list.toArray(new String[this.size]);
+		return list.toArray(new String[list.size()]);
 	}
 	
 	private void visitSubTree(Node n, ArrayList<String> list) {
@@ -356,7 +360,21 @@ public class BinaryST
 	
 	public String[] preOrder()
 	{
-		return null;
+		ArrayList<String> list = new ArrayList<String>();
+		this.visitSubTreePreOrder(this.root, list);
+		return list.toArray(new String[list.size()]);
+	}
+	
+	private void visitSubTreePreOrder(Node n, ArrayList<String> list) {
+		for(int x=0;x<n.quantity;x++) {
+			list.add(n.data);
+		}
+		if(n.left != null) {
+			visitSubTreePreOrder(n.left, list);
+		}
+		if(n.right != null) {
+			visitSubTreePreOrder(n.right, list);
+		}
 	}
 	
 	public int rankOf(String s)
