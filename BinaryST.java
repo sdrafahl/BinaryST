@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.Stack;
+
 // LEAVE THIS FILE IN THE DEFAULT PACKAGE
 //  (i.e., DO NOT add 'package cs311.pa1;' or similar)
 
@@ -19,6 +22,8 @@ public class BinaryST
 	public BinaryST()
 	{
 		root = null;
+		this.size = 0;
+		this.unique = 0;
 	}
 	
 	public BinaryST(String[] s)
@@ -26,19 +31,11 @@ public class BinaryST
 		root = null;
 		for(int x=0;x<s.length;x++) {
 			if(root == null) {
-				Node root = new Node(s[x]);
+				root = new Node(s[x]);
+				size++;
+				unique++;
 			} else {
-				int result = placeNode(root, s[x]);
-				switch(result) {
-					case 0 :
-						this.size++;
-					break;
-					
-					case 1: 
-						this.unique++;
-						this.size++;
-					break;
-				}
+				this.add(s[x]);
 			}
 		}
 	}
@@ -53,7 +50,7 @@ public class BinaryST
 			if(n.left == null) {
 				n.left = node;
 				node.parent = n;
-				updateHeight(node.parent, 1);
+				updateHeight(node.parent, false);
 				return 1;
 			} else {
 				return placeNode(n.left, d);
@@ -62,7 +59,7 @@ public class BinaryST
 			if(n.right == null) {
 				n.right = node;
 				node.parent = n;
-				updateHeight(node.parent, 1);
+				updateHeight(node.parent, false);
 				return 1;
 			} else {
 				return placeNode(n.right, d);
@@ -70,14 +67,27 @@ public class BinaryST
 		}
 	}
 	
-	private void updateHeight(Node n, int height) {
-		if(n.height < height) {
-			n.height = height;
+	private void updateHeight(Node n, boolean removed) {
+		if(n.left != null && n.right != null) {
+			if(n.left.height - n.right.height > 0 ) {
+				n.height = n.left.height + 1;
+			} else {
+				n.height = n.right.height + 1;
+			}
+			n.size = n.left.size + 1 + n.right.size;
+		} else if(n.left == null && n.right != null) {
+			n.height = n.right.height + 1;
+			n.size = n.right.size + 1;
+		} else if(n.left != null && n.right == null) {
+			n.height = n.left.height + 1;
+			n.size = n.left.size + 1;
+		} else {
+			n.height = 0;
+			n.size = 1;
 		}
-		if(n.parent == null) {
-			return;
-		}
-		updateHeight(n.parent, height + 1);
+		if(n.parent != null) {
+			updateHeight(n.parent, removed);
+		}	
 	}
 	
 	public int distinctSize()
@@ -101,37 +111,272 @@ public class BinaryST
 	
 	public void add(String s)
 	{
-		// implementation
+		if(root == null) {
+			root = new Node(s);
+			this.unique++;
+			this.size++;
+			return;
+		}
+		int result = placeNode(root, s);
+		switch(result) {
+			case 0 :
+				this.size++;
+			break;
+			
+			case 1: 
+				this.unique++;
+				this.size++;
+			break;
+		}
 	}
 	
 	public boolean search(String s)
 	{
-		// implementation
+		Node temp = this.root;
+		while(true) {
+			if(temp == null) {
+				return false;
+			}
+			if(temp.data.equals(s)) {
+				return true;
+			}
+			if(temp.data.compareTo(s) > 0) {
+				temp = temp.left;
+			} else {
+				temp = temp.right;
+			}
+		}
 	}
 	
 	public int frequency(String s)
 	{
-		// implementation
+		Node temp = this.root;
+		while(true) {
+			if(temp == null) {
+				return 0;
+			}
+			if(temp.data.equals(s)) {
+				return temp.quantity;
+			}
+			if(temp.data.compareTo(s) > 0) {
+				temp = temp.left;
+			} else {
+				temp = temp.right;
+			}
+		}
 	}
 	
 	public boolean remove(String s)
 	{
-		// implementation
+		Node temp = this.root;
+		while(true) {
+			if(temp == null) {
+				return false;
+			}
+			if(temp.data.equals(s)) {
+				this.size--;
+				if(temp.quantity > 1) {
+					temp.quantity--;
+				} else {
+					removeNode(temp);
+					this.unique--;
+				}
+				return true;
+			}
+			if(temp.data.compareTo(s) > 0) {
+				temp = temp.left;
+			} else {
+				temp = temp.right;
+			}
+		}
+	}
+	
+	private void removeNode(Node n) {
+		/* The root is removed */
+		if(n.parent == null) {
+			
+			Node newRoot = n.right;
+			Node left = n.left;
+			this.root = newRoot;
+			Node temp = newRoot;
+			while(true) {
+				if(temp.left == null) {
+					temp.left = left;
+					left.parent = temp;
+					newRoot.parent = null;
+					break;
+				}
+				temp = temp.left;
+			}
+			Node toe = n.right;
+			while(true) {
+				if(toe.left == null && toe.right == null) {
+					break;
+				}
+				if(toe.right != null && (toe.left == null || toe.right.height > toe.left.height)) {
+					toe = toe.right;
+				} else {
+					toe = toe.left;
+				}
+			}
+			this.updateHeight(toe, true);
+			return;
+		}
+		
+		if(n.left == null && n.right == null) {
+			if(n.parent.right != null && (n.parent.left == null || n.parent.right.data.equals(n.data))) {
+				n.parent.right = null;
+			} else {
+				n.parent.left = null;
+			}
+			this.updateHeight(n.parent, true);
+			return;
+		}
+		
+		if(n.right != null && n.parent != null && n.left != null) {
+			Node p = n.parent;
+			if(p.right.data.equals(n.data)) {
+				p.right = n.right;
+				n.right.parent = p;
+				Node temp = p.right;
+				while(true) {
+					if(temp.left == null) {
+						temp.left = n.left;
+						n.left.parent = temp;
+						break;
+					}
+					temp = temp.left;
+				}
+				Node toe = n.right;
+				while(true) {
+					if(toe.left == null && toe.right == null) {
+						break;
+					}
+					if(toe.right != null && (toe.left == null || toe.right.height > toe.left.height)) {
+						toe = toe.right;
+					} else {
+						toe = toe.left;
+					}
+				}
+				this.updateHeight(toe, true);
+			} else {
+				p.left = n.right;
+				p.left.parent = p;
+				Node temp = n.right;
+				while(true) {
+					if(temp.left == null) {
+						temp.left = n.left;
+						n.left.parent = temp;
+						break;
+					}
+					temp = temp.left;
+				}
+				Node toe = n.right;
+				while(true) {
+					if(toe.left == null && toe.right == null) {
+						break;
+					}
+					if(toe.right != null && (toe.left == null || toe.right.height > toe.left.height)) {
+						toe = toe.right;
+					} else {
+						toe = toe.left;
+					}
+				}
+				this.updateHeight(toe, true);
+			}
+			return;
+		}
+		
+		if(n.parent != null && n.left == null && n.right != null) {
+			n.right.parent = n.parent;
+			if(n.parent.right.data.equals(n.data)) {
+				n.parent.right = n.right;
+			} else {
+				n.parent.left = n.left;
+			}
+			
+			Node toe = n.right;
+			while(true) {
+				if(toe.left == null && toe.right == null) {
+					break;
+				}
+				if(toe.right != null && (toe.left == null || toe.right.height > toe.left.height)) {
+					toe = toe.right;
+				} else {
+					toe = toe.left;
+				}
+			}
+			this.updateHeight(toe, true);
+			return;
+		}
+		
+		if(n.parent != null && n.left != null && n.right == null) {
+			n.left.parent = n.parent;
+			if(n.parent.right.data.equals(n.data)) {
+				n.parent.right = n.left;
+			} else {
+				n.parent.left = n.left;
+			}
+			Node toe = n.left;
+			while(true) {
+				if(n.left == null && n.right == null) {
+					break;
+				}
+				if(toe.right != null && (n.left == null || n.right.height > n.left.height)) {
+					toe = toe.right;
+				} else {
+					toe = toe.left;
+				}
+			}
+			this.updateHeight(toe, true);
+			return;
+		}
+		
 	}
 	
 	public String[] inOrder()
 	{
-		// implementation
+		ArrayList<String> list = new ArrayList<String>();
+		this.visitSubTree(root, list);
+		return list.toArray(new String[this.size]);
 	}
+	
+	private void visitSubTree(Node n, ArrayList<String> list) {
+		if(n.left != null) {
+			visitSubTree(n.left, list);
+		}
+		for(int x=0;x<n.quantity;x++) {
+			list.add(n.data);
+		}
+		if(n.right != null) {
+			visitSubTree(n.right, list);
+		}
+	}
+	
 	
 	public String[] preOrder()
 	{
-		// implementation
+		return null;
 	}
 	
 	public int rankOf(String s)
 	{
-		// implementation
+		Node temp = root;
+		int rank = 0;
+		while(temp != null) {
+			if(temp.data.compareTo(s) > 0) {
+				temp = temp.left;
+			} else if(temp.data.compareTo(s) < 0) {
+				rank += 1 + temp.left.size;
+				temp = temp.right;
+			} else {
+				if(temp.left != null) {
+					rank += temp.left.size;
+				}
+				return rank;
+			}
+		}
+		return rank;
 	}
 	
 	class Node {
@@ -142,6 +387,8 @@ public class BinaryST
 		
 		int height;
 		
+		int size;
+		
 		Node left;
 		
 		Node right;
@@ -151,6 +398,7 @@ public class BinaryST
 		public Node(String data) {
 			this.data = data;
 			this.quantity = 1;
+			size = 1;
 			parent = null;
 			left = null;
 			right = null;
